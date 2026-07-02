@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
@@ -107,7 +106,6 @@ tr.clickable:hover{background:var(--surface)}
 </nav>
 
 <!-- ───────────── РОЗРАХУНОК ───────────── -->
-
 <div class="page active" id="page-calc">
 <h2 class="section-title">Розрахунок собівартості послуги</h2>
 <div class="hint">Обери послугу з прайсу або введи вручну, додай матеріали. Ціни матеріалів зберігаються в доларах і переводяться в гривню за сьогоднішнім курсом — впиши його нижче.</div>
@@ -176,7 +174,7 @@ tr.clickable:hover{background:var(--surface)}
 <h2 class="section-title">Збережені розрахунки</h2>
 <div class="card" style="padding:0">
 <table>
-<thead><tr><th>Послуга</th><th>Ціна</th><th>Собівартість</th><th>Маржа</th><th>Маржа %</th><th>Курс $ тоді → зараз</th><th>Оновлено</th></tr></thead>
+<thead><tr><th>Послуга</th><th>Ціна</th><th>Собівартість</th><th>Маржа</th><th>Маржа %</th><th>Курс $ тоді → зараз</th><th>Оновлено</th><th></th></tr></thead>
 <tbody id="econ-table-body"></tbody>
 </table>
 <div class="empty" id="econ-empty" style="display:none">Поки немає збережених розрахунків</div>
@@ -184,7 +182,6 @@ tr.clickable:hover{background:var(--surface)}
 </div>
 
 <!-- ───────────── МАТЕРІАЛИ ───────────── -->
-
 <div class="page" id="page-materials">
 <h2 class="section-title">Каталог матеріалів</h2>
 <div class="hint">Вноси матеріал один раз — назву, обʼєм/вагу упаковки, ціну в гривнях і курс на день покупки. Система переведе ціну в долари і зберігатиме її в валюті. Ціна за одиницю в гривні рахується за сьогоднішнім курсом.</div>
@@ -551,14 +548,15 @@ function renderEconomicsTable() {
   }
   empty.style.display = "none";
   body.innerHTML = ECONOMICS.map((e, i) => `
-    <tr class="clickable" onclick="loadEconomicsRow(${i})">
-      <td>${e.service}</td>
-      <td class="num">${fmt(e.price)}</td>
-      <td class="num">${fmt(e.totalCost)}</td>
-      <td class="num">${fmt(e.margin)}</td>
-      <td class="num">${fmtPct(e.marginPct)}</td>
-      <td class="num">${rateDeltaHtml(e.usdRate)}</td>
-      <td class="muted">${e.updated}</td>
+    <tr>
+      <td class="clickable" onclick="loadEconomicsRow(${i})">${e.service}</td>
+      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmt(e.price)}</td>
+      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmt(e.totalCost)}</td>
+      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmt(e.margin)}</td>
+      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmtPct(e.marginPct)}</td>
+      <td class="num clickable" onclick="loadEconomicsRow(${i})">${rateDeltaHtml(e.usdRate)}</td>
+      <td class="muted clickable" onclick="loadEconomicsRow(${i})">${e.updated}</td>
+      <td style="white-space:nowrap"><button class="row-del-btn" onclick="recalcSavedRow(${i})" title="Перерахувати за поточним курсом" style="color:var(--umbra);margin-right:4px">🔄</button><button class="row-del-btn" onclick="deleteEconomics(${i})">🗑</button></td>
     </tr>
   `).join("");
 }
@@ -706,7 +704,99 @@ async function deleteMaterial(name) {
     statusEl.innerHTML = '<div class="status-msg err">Помилка видалення: ' + e.message + '</div>';
   }
 }
-</script>
 
+async function recalcSavedRow(i) {
+  const e = ECONOMICS[i];
+  const statusEl = document.getElementById("calc-status");
+  if (!TODAY_RATE) {
+    statusEl.innerHTML = '<div class="status-msg err">Спочатку впиши сьогоднішній курс ₴/$ угорі</div>';
+    window.scrollTo({top:0, behavior:"smooth"});
+    return;
+  }
+
+  // Перераховуємо собівартість матеріалів за поточним курсом
+  let matCost = 0;
+  let missing = [];
+  e.materials.forEach(function(m) {
+    const mat = MATERIALS.find(x => x.name === m.name);
+    if (mat) {
+      matCost += mat.unitPriceUsd * TODAY_RATE * m.qty;
+    } else {
+      missing.push(m.name);
+    }
+  });
+
+  if (missing.length) {
+    if (!confirm('Матеріал(и) відсутні в каталозі: ' + missing.join(", ") + '.\nЇх вартість не буде враховано. Продовжити перерахунок?')) return;
+  }
+
+  const timeCost = e.normHours * e.hourRate;
+  const totalCost = matCost + timeCost + e.overhead;
+  const margin = e.price - totalCost;
+  const marginPct = e.price ? (margin / e.price * 100) : 0;
+
+  if (!confirm('Перерахувати "' + e.service + '" за курсом ' + TODAY_RATE + '?\n\nБула собівартість: ' + fmt(e.totalCost) + '\nСтане: ' + fmt(totalCost))) return;
+
+  statusEl.innerHTML = '<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Перерахунок...</div>';
+  try {
+    const res = await fetch(API_BASE + "/economics/update", {
+      method: "POST",
+      mode: "cors",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        matchService: e.service,
+        matchUpdated: e.updated,
+        service: e.service,
+        price: e.price,
+        materials: e.materials,
+        materialsCost: Math.round(matCost * 100) / 100,
+        normHours: e.normHours,
+        hourRate: e.hourRate,
+        timeCost: Math.round(timeCost * 100) / 100,
+        overhead: e.overhead,
+        totalCost: Math.round(totalCost * 100) / 100,
+        margin: Math.round(margin * 100) / 100,
+        marginPct: Math.round(marginPct * 10) / 10,
+        usdRate: TODAY_RATE
+      })
+    });
+    const result = await res.json();
+    if (result.status === "ok") {
+      statusEl.innerHTML = '<div class="status-msg ok">✅ Перераховано за курсом ' + TODAY_RATE + '</div>';
+      await loadEconomics();
+      renderEconomicsTable();
+    } else {
+      statusEl.innerHTML = '<div class="status-msg err">Помилка: ' + result.message + '</div>';
+    }
+  } catch(err) {
+    statusEl.innerHTML = '<div class="status-msg err">Помилка перерахунку: ' + err.message + '</div>';
+  }
+}
+
+async function deleteEconomics(i) {
+  const e = ECONOMICS[i];
+  if (!confirm('Видалити розрахунок "' + e.service + '" від ' + e.updated + '?')) return;
+  const statusEl = document.getElementById("calc-status");
+  statusEl.innerHTML = '<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Видалення...</div>';
+  try {
+    const res = await fetch(API_BASE + "/economics/delete", {
+      method: "POST",
+      mode: "cors",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({service: e.service, updated: e.updated})
+    });
+    const result = await res.json();
+    if (result.status === "ok") {
+      statusEl.innerHTML = '<div class="status-msg ok">✅ Видалено</div>';
+      await loadEconomics();
+      renderEconomicsTable();
+    } else {
+      statusEl.innerHTML = '<div class="status-msg err">Помилка: ' + result.message + '</div>';
+    }
+  } catch(e) {
+    statusEl.innerHTML = '<div class="status-msg err">Помилка видалення: ' + e.message + '</div>';
+  }
+}
+</script>
 </body>
 </html>
