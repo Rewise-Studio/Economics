@@ -42,7 +42,7 @@ h2.section-title{font-size:15px;font-weight:500;margin:0 0 12px;color:var(--grap
 .field input,.field select{padding:9px 11px;font-size:13px;border:1px solid var(--border);border-radius:9px;font-family:inherit;background:var(--bg);min-width:0}
 .field input:focus,.field select:focus{outline:none;border-color:var(--umbra)}
 .field.grow{flex:1;min-width:160px}
-.field.small{width:110px}
+.field.small{width:130px}
 .field.xsmall{width:80px}
 .btn{padding:9px 16px;background:var(--card);border:1px solid var(--border);border-radius:9px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--graphite);white-space:nowrap}
 .btn:hover{border-color:var(--umbra)}
@@ -76,11 +76,43 @@ tr.clickable:hover{background:var(--surface)}
 .status-msg.ok{background:#eaf3e0;color:var(--good)}
 .status-msg.err{background:#fbe9e9;color:var(--bad)}
 .rate-box{display:flex;align-items:center;gap:14px;padding:14px 18px;margin-bottom:16px;flex-wrap:wrap}
-.rate-box .field.small{width:130px}
+.rate-box .field.small{width:150px}
+/* Services catalog */
+.svc-search{width:100%;padding:11px 14px;font-size:14px;border:1px solid var(--border);border-radius:10px;font-family:inherit;background:var(--card);margin-bottom:16px}
+.svc-search:focus{outline:none;border-color:var(--umbra)}
+.dept-group{margin-bottom:22px}
+.dept-title{font-size:12px;color:var(--umbra);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.svc-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.svc-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;cursor:pointer;transition:all .12s;position:relative}
+.svc-card:hover{border-color:var(--umbra);box-shadow:0 2px 8px rgba(107,79,58,.08)}
+.svc-card.calculated{background:#f3f8ec;border-color:#bcd89a}
+.svc-card.calculated.negative{background:#fbeeee;border-color:#e2b4b4}
+.svc-card-name{font-size:13px;font-weight:500;line-height:1.35;margin-bottom:8px}
+.svc-card-hint{font-size:10px;color:var(--muted);font-weight:400;line-height:1.3;margin-top:-5px;margin-bottom:8px}
+.svc-card-price{font-size:13px;color:var(--umbra);font-weight:600}
+.svc-card-econ{margin-top:8px;padding-top:8px;border-top:1px solid rgba(107,79,58,.12);display:flex;justify-content:space-between;font-size:11px}
+.svc-card-econ .lbl{color:var(--muted)}
+.svc-card-econ .val{font-weight:600}
+.svc-card-econ .val.good{color:var(--good)}
+.svc-card-econ .val.bad{color:var(--bad)}
+.svc-card-check{position:absolute;top:10px;right:12px;font-size:12px}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;width:560px;max-width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal-title{font-size:15px;font-weight:500;line-height:1.35}
+.modal-sub{font-size:12px;color:var(--umbra);font-weight:600;margin-top:3px}
+.modal-close{cursor:pointer;font-size:22px;color:var(--muted);line-height:1;padding:0 4px}
+.modal-close:hover{color:var(--graphite)}
+.modal-body{overflow-y:auto;padding:18px 20px;flex:1}
+.modal-footer{padding:13px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.no-rate-warn{background:#fdf3e3;color:#8a5a12;font-size:12px;padding:10px 14px;border-radius:9px;margin-bottom:14px}
 @media(max-width:760px){
 .summary{grid-template-columns:1fr 1fr}
 .mat-row{grid-template-columns:1fr;gap:6px}
 .nav-tab{padding:0 10px;font-size:12px}
+.svc-cards{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -107,84 +139,22 @@ tr.clickable:hover{background:var(--surface)}
 
 <!-- ───────────── РОЗРАХУНОК ───────────── -->
 <div class="page active" id="page-calc">
-<h2 class="section-title">Розрахунок собівартості послуги</h2>
-<div class="hint">Обери послугу з прайсу або введи вручну, додай матеріали. Ціни матеріалів зберігаються в доларах і переводяться в гривню за сьогоднішнім курсом — впиши його нижче.</div>
-
 <div class="card rate-box">
 <div class="field small">
-<label>Сьогоднішній курс ₴/$</label>
+<label>Поточний курс ₴/$</label>
 <input type="number" id="today-rate" step="0.01" placeholder="42.00" oninput="onTodayRateChange()">
 </div>
-<div class="muted" style="font-size:12px;max-width:340px">Впиши поточний курс (можна трохи завищений — для запасу). Він запамʼятається і застосується до всіх матеріалів.</div>
+<div class="muted" style="font-size:12px;max-width:420px">Впиши поточний курс (можна трохи завищений — для запасу). Він застосовується до всіх розрахунків автоматично.</div>
 </div>
 
-<div class="card">
-<div class="form-row">
-<div class="field grow">
-<label>Послуга</label>
-<select id="service-select" onchange="onServiceSelect()"></select>
-</div>
-<div class="field small">
-<label>Ціна продажу ₴</label>
-<input type="number" id="service-price" oninput="recalc()">
-</div>
-</div>
-<div class="form-row" id="manual-name-row" style="display:none">
-<div class="field grow">
-<label>Назва послуги (вручну)</label>
-<input type="text" id="manual-name" placeholder="Якщо немає в прайсі" oninput="recalc()">
-</div>
-</div>
-
-<h2 class="section-title" style="margin-top:18px">Матеріали</h2>
-<div id="materials-list"></div>
-<button class="btn btn-sm" onclick="addMatRow()">+ Додати матеріал</button>
-
-<h2 class="section-title" style="margin-top:18px">Час і накладні</h2>
-<div class="form-row">
-<div class="field small">
-<label>Норма-год</label>
-<input type="number" id="norm-hours" step="0.1" placeholder="0" oninput="recalc()">
-</div>
-<div class="field small">
-<label>₴ за норма-год</label>
-<input type="number" id="hour-rate" placeholder="0" oninput="recalc()">
-</div>
-<div class="field small">
-<label>Накладні ₴</label>
-<input type="number" id="overhead" placeholder="0" oninput="recalc()">
-</div>
-</div>
-
-<div class="summary">
-<div class="sum-card"><div class="sum-label">Собівартість матеріалів</div><div class="sum-val" id="sum-mat">0 ₴</div></div>
-<div class="sum-card"><div class="sum-label">Собівартість часу</div><div class="sum-val" id="sum-time">0 ₴</div></div>
-<div class="sum-card"><div class="sum-label">Повна собівартість</div><div class="sum-val" id="sum-total">0 ₴</div></div>
-<div class="sum-card"><div class="sum-label">Ціна продажу</div><div class="sum-val" id="sum-price">0 ₴</div></div>
-<div class="sum-card"><div class="sum-label">Маржа</div><div class="sum-val" id="sum-margin">0 ₴</div></div>
-<div class="sum-card"><div class="sum-label">Маржа %</div><div class="sum-val" id="sum-margin-pct">0%</div></div>
-</div>
-
-<div style="margin-top:16px">
-<button class="btn btn-primary" onclick="saveEconomics()">Зберегти розрахунок</button>
-</div>
-<div id="calc-status"></div>
-</div>
-
-<h2 class="section-title">Збережені розрахунки</h2>
-<div class="card" style="padding:0">
-<table>
-<thead><tr><th>Послуга</th><th>Ціна</th><th>Собівартість</th><th>Маржа</th><th>Маржа %</th><th>Курс $ тоді → зараз</th><th>Оновлено</th><th></th></tr></thead>
-<tbody id="econ-table-body"></tbody>
-</table>
-<div class="empty" id="econ-empty" style="display:none">Поки немає збережених розрахунків</div>
-</div>
+<input type="text" class="svc-search" id="svc-search" placeholder="Пошук послуги..." oninput="renderServiceCatalog()">
+<div id="service-catalog"></div>
 </div>
 
 <!-- ───────────── МАТЕРІАЛИ ───────────── -->
 <div class="page" id="page-materials">
 <h2 class="section-title">Каталог матеріалів</h2>
-<div class="hint">Вноси матеріал один раз — назву, обʼєм/вагу упаковки, ціну в гривнях і курс на день покупки. Система переведе ціну в долари і зберігатиме її в валюті. Ціна за одиницю в гривні рахується за сьогоднішнім курсом.</div>
+<div class="hint">Вноси матеріал один раз — назву, обʼєм/вагу упаковки, ціну в гривнях і курс на день покупки. Система переведе ціну в долари і зберігатиме її в валюті. Ціна за одиницю в гривні рахується за поточним курсом.</div>
 
 <div class="card">
 <div class="form-row">
@@ -237,564 +207,415 @@ tr.clickable:hover{background:var(--surface)}
 </div>
 </div>
 
+<!-- ───────────── МОДАЛКА РОЗРАХУНКУ ───────────── -->
+<div class="modal-bg" id="calc-modal-bg" onclick="closeCalcModal(event)">
+<div class="modal" onclick="event.stopPropagation()">
+<div class="modal-header">
+<div>
+<div class="modal-title" id="cm-title"></div>
+<div class="modal-sub" id="cm-sub"></div>
+</div>
+<div class="modal-close" onclick="closeCalcModal()">×</div>
+</div>
+<div class="modal-body" id="cm-body"></div>
+<div class="modal-footer" id="cm-footer"></div>
+</div>
+</div>
+
 <script>
 const PWD_HASH = "70775e2a6abd151f90d68ec1cc3b5bad65e57f7c545b6790e744de1e4b7db78a";
 const SHEET_ID = "1kDJ893PFa_DTNKt-r8wQES_JFXbJSDNU8niRLz70Aao";
 const API_BASE = "https://price-production-97b5.up.railway.app";
 
-// ─── AUTH ──────────────────────────────────────────────
-async function hashStr(s) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
-}
-async function doLogin() {
-  const h = await hashStr(document.getElementById("pwd-input").value);
-  if (h === PWD_HASH) {
-    document.getElementById("login-wrap").style.display = "none";
-    document.getElementById("app").style.display = "flex";
-    sessionStorage.setItem("rw_auth","1");
-    loadData();
-  } else {
-    document.getElementById("login-err").textContent = "Невірний пароль";
-  }
-}
-if (sessionStorage.getItem("rw_auth") === "1") {
-  document.getElementById("login-wrap").style.display = "none";
-  document.getElementById("app").style.display = "flex";
-  loadData();
-}
-function logout() { sessionStorage.removeItem("rw_auth"); location.reload(); }
+// Підказки моделей взуття
+const SVC_HINTS = {
+  "літнє взуття":"сандалі, босоніжки, шльопанці, сабо, мюлі, еспадрильї",
+  "низьке взуття":"туфлі, лофери, балетки, оксфорди, кросівки, кеді, мокасини",
+  "середнє взуття":"черевики (челсі, дезерти, ботильйони), хайтопи",
+  "високі чоботи":"чоботи до коліна, ботфорти, берці",
+  "ugg та хутряне":"угги, дутики, хутряне та зимове взуття"
+};
+function svcHint(name){var lc=name.toLowerCase();for(var k in SVC_HINTS){if(lc.indexOf(k)!==-1)return SVC_HINTS[k];}return"";}
 
-function showPage(id, btn) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".nav-tab").forEach(b => b.classList.remove("active"));
-  document.getElementById("page-" + id).classList.add("active");
-  btn.classList.add("active");
-}
+// ─── AUTH ──────────────────────────────────────────────
+async function hashStr(s){const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");}
+async function doLogin(){const h=await hashStr(document.getElementById("pwd-input").value);if(h===PWD_HASH){document.getElementById("login-wrap").style.display="none";document.getElementById("app").style.display="flex";sessionStorage.setItem("rw_auth","1");loadData();}else{document.getElementById("login-err").textContent="Невірний пароль";}}
+if(sessionStorage.getItem("rw_auth")==="1"){document.getElementById("login-wrap").style.display="none";document.getElementById("app").style.display="flex";loadData();}
+function logout(){sessionStorage.removeItem("rw_auth");location.reload();}
+function showPage(id,btn){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.querySelectorAll(".nav-tab").forEach(b=>b.classList.remove("active"));document.getElementById("page-"+id).classList.add("active");btn.classList.add("active");}
 
 // ─── DATA ──────────────────────────────────────────────
-let SERVICES = [];
-let MATERIALS = [];  // {name, packSize, unit, packPriceUah, buyRate, packPriceUsd, unitPriceUsd, supplier, updated}
+let SERVICES = [];   // {name, unit, price, dept, category}
+let MATERIALS = [];
 let ECONOMICS = [];
-let matRows = [];    // {name, qty}
-let editingMaterial = null;
-let TODAY_RATE = 0;  // сьогоднішній курс (вводиться вручну, памʼятається)
+let TODAY_RATE = 0;
 
-function loadTodayRate() {
-  const saved = localStorage.getItem("rw_today_rate");
-  if (saved) {
-    TODAY_RATE = parseFloat(saved);
-    document.getElementById("today-rate").value = TODAY_RATE;
-  }
-}
-function onTodayRateChange() {
-  TODAY_RATE = parseFloat(document.getElementById("today-rate").value) || 0;
-  localStorage.setItem("rw_today_rate", TODAY_RATE);
-  renderMatRows();
-  renderMaterialsTable();
-  recalc();
-}
+// Стан поточної модалки
+let CM = null; // {service, price, matRows:[{name,qty}], normHours, hourRate, overhead, existing}
 
-async function gvizFetch(sheetName) {
-  const url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&sheet=" + encodeURIComponent(sheetName);
-  const res = await fetch(url);
-  const text = await res.text();
-  const json = JSON.parse(text.replace(/^.*?({.*}).*$/s, "$1"));
-  return (json.table && json.table.rows) ? json.table.rows : [];
-}
-function cellStr(row, i) {
-  const c = row.c[i];
-  return c && c.v !== null && c.v !== undefined ? String(c.v) : "";
-}
-function cellNum(row, i) {
-  const v = cellStr(row, i).replace(",", ".");
-  const n = parseFloat(v);
-  return isNaN(n) ? 0 : n;
-}
+function loadTodayRate(){const s=localStorage.getItem("rw_today_rate");if(s){TODAY_RATE=parseFloat(s);document.getElementById("today-rate").value=TODAY_RATE;}}
+function onTodayRateChange(){TODAY_RATE=parseFloat(document.getElementById("today-rate").value)||0;localStorage.setItem("rw_today_rate",TODAY_RATE);renderServiceCatalog();renderMaterialsTable();}
 
-async function loadData() {
+async function gvizFetch(sheetName){const url="https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:json&sheet="+encodeURIComponent(sheetName);const res=await fetch(url);const text=await res.text();const json=JSON.parse(text.replace(/^.*?({.*}).*$/s,"$1"));return(json.table&&json.table.rows)?json.table.rows:[];}
+function cellStr(row,i){const c=row.c[i];return c&&c.v!==null&&c.v!==undefined?String(c.v):"";}
+function cellNum(row,i){const v=cellStr(row,i).replace(",",".");const n=parseFloat(v);return isNaN(n)?0:n;}
+
+async function loadData(){
   loadTodayRate();
-  await Promise.all([loadServices(), loadMaterials(), loadEconomics()]);
-  renderServiceSelect();
+  await Promise.all([loadServices(),loadMaterials(),loadEconomics()]);
+  renderServiceCatalog();
   renderMaterialsTable();
-  renderEconomicsTable();
-  if (!matRows.length) addMatRow();
-  recalc();
 }
 
-async function loadServices() {
-  try {
-    const rows = await gvizFetch("Прайс");
-    SERVICES = rows.map(r => ({
-      name: cellStr(r, 3),
-      unit: cellStr(r, 4),
-      price: cellNum(r, 5)
-    })).filter(s => s.name);
-  } catch(e) { console.log("Не вдалося завантажити Прайс", e); SERVICES = []; }
+async function loadServices(){
+  try{
+    const rows=await gvizFetch("Прайс");
+    // A Категорія B Відділ ID C Відділ назва D Назва послуги E Одиниця F Ціна
+    SERVICES=rows.map(r=>({
+      category:cellStr(r,0),
+      dept:cellStr(r,2),
+      name:cellStr(r,3),
+      unit:cellStr(r,4),
+      price:cellNum(r,5)
+    })).filter(s=>s.name);
+  }catch(e){console.log("Прайс",e);SERVICES=[];}
 }
 
-async function loadMaterials() {
-  try {
-    const rows = await gvizFetch("Матеріали");
-    // A назва B розмір C одиниця D ціна ₴ E курс покупки F ціна $ G ціна за од $ H постачальник I оновлено
-    MATERIALS = rows.map(r => ({
-      name: cellStr(r, 0),
-      packSize: cellNum(r, 1),
-      unit: cellStr(r, 2),
-      packPriceUah: cellNum(r, 3),
-      buyRate: cellNum(r, 4),
-      packPriceUsd: cellNum(r, 5),
-      unitPriceUsd: cellNum(r, 6),
-      supplier: cellStr(r, 7),
-      updated: cellStr(r, 8)
-    })).filter(m => m.name);
-  } catch(e) { console.log("Не вдалося завантажити Матеріали", e); MATERIALS = []; }
+async function loadMaterials(){
+  try{
+    const rows=await gvizFetch("Матеріали");
+    MATERIALS=rows.map(r=>({name:cellStr(r,0),packSize:cellNum(r,1),unit:cellStr(r,2),packPriceUah:cellNum(r,3),buyRate:cellNum(r,4),packPriceUsd:cellNum(r,5),unitPriceUsd:cellNum(r,6),supplier:cellStr(r,7),updated:cellStr(r,8)})).filter(m=>m.name);
+  }catch(e){console.log("Матеріали",e);MATERIALS=[];}
 }
 
-async function loadEconomics() {
-  try {
-    const rows = await gvizFetch("Економіка");
-    ECONOMICS = rows.map(r => {
-      let materials = [];
-      try { materials = JSON.parse(cellStr(r, 2) || "[]"); } catch(e) {}
-      return {
-        service: cellStr(r, 0),
-        price: cellNum(r, 1),
-        materials,
-        materialsCost: cellNum(r, 3),
-        normHours: cellNum(r, 4),
-        hourRate: cellNum(r, 5),
-        timeCost: cellNum(r, 6),
-        overhead: cellNum(r, 7),
-        totalCost: cellNum(r, 8),
-        margin: cellNum(r, 9),
-        marginPct: cellNum(r, 10),
-        usdRate: cellNum(r, 11),
-        updated: cellStr(r, 12)
-      };
-    }).filter(e => e.service);
-  } catch(e) { console.log("Не вдалося завантажити Економіка", e); ECONOMICS = []; }
+async function loadEconomics(){
+  try{
+    const rows=await gvizFetch("Економіка");
+    ECONOMICS=rows.map(r=>{
+      let materials=[];try{materials=JSON.parse(cellStr(r,2)||"[]");}catch(e){}
+      return{service:cellStr(r,0),price:cellNum(r,1),materials,materialsCost:cellNum(r,3),normHours:cellNum(r,4),hourRate:cellNum(r,5),timeCost:cellNum(r,6),overhead:cellNum(r,7),totalCost:cellNum(r,8),margin:cellNum(r,9),marginPct:cellNum(r,10),usdRate:cellNum(r,11),updated:cellStr(r,12)};
+    }).filter(e=>e.service);
+  }catch(e){console.log("Економіка",e);ECONOMICS=[];}
 }
 
-function fmt(n) { return (Math.round(n * 100) / 100).toLocaleString("uk-UA") + " ₴"; }
-function fmtUsd(n) { return "$" + (Math.round(n * 100) / 100).toLocaleString("uk-UA"); }
-function fmtPct(n) { return (Math.round(n * 10) / 10).toLocaleString("uk-UA") + "%"; }
+function fmt(n){return(Math.round(n*100)/100).toLocaleString("uk-UA")+" ₴";}
+function fmtUsd(n){return"$"+(Math.round(n*100)/100).toLocaleString("uk-UA");}
+function fmtPct(n){return(Math.round(n*10)/10).toLocaleString("uk-UA")+"%";}
+function unitPriceUah(mat){return mat.unitPriceUsd*TODAY_RATE;}
 
-// Ціна за одиницю матеріалу в гривні за сьогоднішнім курсом
-function unitPriceUah(mat) {
-  return mat.unitPriceUsd * TODAY_RATE;
+// Знайти збережений розрахунок для послуги (останній за назвою)
+function findEcon(serviceName){
+  const matches=ECONOMICS.filter(e=>e.service===serviceName);
+  return matches.length?matches[matches.length-1]:null;
 }
 
-// ─── РОЗРАХУНОК ────────────────────────────────────────
-function renderServiceSelect() {
-  const sel = document.getElementById("service-select");
-  sel.innerHTML = '<option value="">— Обрати з прайсу —</option>' +
-    SERVICES.map((s,i) => `<option value="${i}">${s.name} (${s.price.toLocaleString("uk-UA")} ₴)</option>`).join("") +
-    '<option value="manual">✎ Ввести вручну</option>';
-}
+// ─── КАТАЛОГ ПОСЛУГ КАРТКАМИ ───────────────────────────
+function renderServiceCatalog(){
+  const cont=document.getElementById("service-catalog");
+  const q=(document.getElementById("svc-search").value||"").trim().toLowerCase();
 
-function onServiceSelect() {
-  const val = document.getElementById("service-select").value;
-  const manualRow = document.getElementById("manual-name-row");
-  if (val === "manual") {
-    manualRow.style.display = "flex";
-    document.getElementById("service-price").value = "";
-  } else if (val !== "") {
-    manualRow.style.display = "none";
-    const s = SERVICES[parseInt(val)];
-    document.getElementById("service-price").value = s.price;
-  } else {
-    manualRow.style.display = "none";
-  }
-  recalc();
-}
-
-function currentServiceName() {
-  const val = document.getElementById("service-select").value;
-  if (val === "manual") return document.getElementById("manual-name").value.trim();
-  if (val !== "") return SERVICES[parseInt(val)].name;
-  return "";
-}
-
-function matOptionsHtml(selected) {
-  return '<option value="">— матеріал —</option>' +
-    MATERIALS.map(m => `<option value="${m.name}" ${m.name===selected?'selected':''}>${m.name} (${fmt(unitPriceUah(m))}/${m.unit})</option>`).join("");
-}
-
-function addMatRow(name, qty) {
-  matRows.push({name: name || "", qty: qty || ""});
-  renderMatRows();
-}
-
-function removeMatRow(idx) {
-  matRows.splice(idx, 1);
-  if (!matRows.length) matRows.push({name:"", qty:""});
-  renderMatRows();
-  recalc();
-}
-
-function renderMatRows() {
-  const el = document.getElementById("materials-list");
-  el.innerHTML = matRows.map((r, i) => {
-    const mat = MATERIALS.find(m => m.name === r.name);
-    const unit = mat ? mat.unit : "";
-    const cost = mat && r.qty ? unitPriceUah(mat) * parseFloat(r.qty) : 0;
-    return `<div class="mat-row">
-      <select onchange="matRows[${i}].name=this.value;renderMatRows();recalc()">${matOptionsHtml(r.name)}</select>
-      <input type="number" placeholder="к-сть" value="${r.qty}" oninput="matRows[${i}].qty=this.value;updateMatCost(${i});recalc()">
-      <div class="mat-cost" style="text-align:left;color:var(--muted)">${unit}</div>
-      <div class="mat-cost" id="mat-cost-${i}">${cost ? fmt(cost) : "—"}</div>
-      <button class="mat-remove" onclick="removeMatRow(${i})">×</button>
-    </div>`;
-  }).join("");
-}
-
-function updateMatCost(i) {
-  const r = matRows[i];
-  const mat = MATERIALS.find(m => m.name === r.name);
-  const cost = mat && r.qty ? unitPriceUah(mat) * parseFloat(r.qty) : 0;
-  const cell = document.getElementById("mat-cost-" + i);
-  if (cell) cell.textContent = cost ? fmt(cost) : "—";
-}
-
-function materialsCost() {
-  let sum = 0;
-  matRows.forEach(r => {
-    const mat = MATERIALS.find(m => m.name === r.name);
-    if (mat && r.qty) sum += unitPriceUah(mat) * parseFloat(r.qty);
+  // Групуємо за відділом
+  const groups={};
+  SERVICES.forEach(s=>{
+    if(q && s.name.toLowerCase().indexOf(q)===-1)return;
+    const dept=s.dept||"Інше";
+    if(!groups[dept])groups[dept]=[];
+    groups[dept].push(s);
   });
+
+  const deptKeys=Object.keys(groups);
+  if(!deptKeys.length){cont.innerHTML='<div class="empty">Нічого не знайдено</div>';return;}
+
+  let html="";
+  deptKeys.forEach(dept=>{
+    html+='<div class="dept-group"><div class="dept-title">'+dept+'</div><div class="svc-cards">';
+    groups[dept].forEach(s=>{
+      const econ=findEcon(s.name);
+      const hint=svcHint(s.name);
+      let cls="svc-card";
+      let econHtml="";
+      let check="";
+      if(econ){
+        const neg=econ.margin<0;
+        cls+=" calculated"+(neg?" negative":"");
+        check='<span class="svc-card-check">'+(neg?"🔴":"🟢")+'</span>';
+        econHtml='<div class="svc-card-econ"><span class="lbl">Собів. '+fmt(econ.totalCost)+'</span><span class="val '+(neg?"bad":"good")+'">'+fmt(econ.margin)+' · '+fmtPct(econ.marginPct)+'</span></div>';
+      }
+      html+='<div class="'+cls+'" onclick="openCalcModal(\''+encodeURIComponent(s.name)+'\')">'
+        +check
+        +'<div class="svc-card-name">'+s.name+'</div>'
+        +(hint?'<div class="svc-card-hint">'+hint+'</div>':'')
+        +'<div class="svc-card-price">'+s.price.toLocaleString("uk-UA")+' ₴</div>'
+        +econHtml
+        +'</div>';
+    });
+    html+='</div></div>';
+  });
+  cont.innerHTML=html;
+}
+
+// ─── МОДАЛКА РОЗРАХУНКУ ────────────────────────────────
+function openCalcModal(encName){
+  const name=decodeURIComponent(encName);
+  const svc=SERVICES.find(s=>s.name===name);
+  if(!svc)return;
+  const econ=findEcon(name);
+
+  CM={
+    service:name,
+    price:econ?econ.price:svc.price,
+    matRows:econ&&econ.materials.length?econ.materials.map(m=>({name:m.name,qty:m.qty})):[{name:"",qty:""}],
+    normHours:econ?econ.normHours:"",
+    hourRate:econ?econ.hourRate:"",
+    overhead:econ?econ.overhead:"",
+    existing:econ?{service:econ.service,updated:econ.updated}:null
+  };
+
+  document.getElementById("cm-title").textContent=name;
+  document.getElementById("cm-sub").textContent=svc.dept||"";
+  renderCalcModalBody();
+  document.getElementById("calc-modal-bg").classList.add("open");
+}
+
+function closeCalcModal(e){
+  if(e && e.target!==document.getElementById("calc-modal-bg"))return;
+  document.getElementById("calc-modal-bg").classList.remove("open");
+  CM=null;
+}
+
+function renderCalcModalBody(){
+  const body=document.getElementById("cm-body");
+  const rateWarn=!TODAY_RATE?'<div class="no-rate-warn">⚠️ Впиши поточний курс ₴/$ угорі сторінки — без нього матеріали не рахуються у гривні.</div>':'';
+
+  let matHtml="";
+  CM.matRows.forEach((r,i)=>{
+    matHtml+=matRowHtml(r,i);
+  });
+
+  body.innerHTML=rateWarn
+    +'<div class="form-row"><div class="field small"><label>Ціна продажу ₴</label><input type="number" id="cm-price" value="'+CM.price+'" oninput="cmRecalc()"></div></div>'
+    +'<h2 class="section-title" style="margin-top:6px">Матеріали</h2>'
+    +'<div id="cm-mat-list">'+matHtml+'</div>'
+    +'<button class="btn btn-sm" onclick="cmAddMat()">+ Додати матеріал</button>'
+    +'<h2 class="section-title" style="margin-top:16px">Час і накладні</h2>'
+    +'<div class="form-row">'
+    +'<div class="field xsmall"><label>Норма-год</label><input type="number" id="cm-norm" step="0.1" value="'+CM.normHours+'" oninput="cmRecalc()"></div>'
+    +'<div class="field small"><label>₴ за норма-год</label><input type="number" id="cm-hourrate" value="'+CM.hourRate+'" oninput="cmRecalc()"></div>'
+    +'<div class="field small"><label>Накладні ₴</label><input type="number" id="cm-overhead" value="'+CM.overhead+'" oninput="cmRecalc()"></div>'
+    +'</div>'
+    +'<div class="summary">'
+    +'<div class="sum-card"><div class="sum-label">Матеріали</div><div class="sum-val" id="cm-sum-mat">0 ₴</div></div>'
+    +'<div class="sum-card"><div class="sum-label">Час</div><div class="sum-val" id="cm-sum-time">0 ₴</div></div>'
+    +'<div class="sum-card"><div class="sum-label">Собівартість</div><div class="sum-val" id="cm-sum-total">0 ₴</div></div>'
+    +'<div class="sum-card"><div class="sum-label">Ціна</div><div class="sum-val" id="cm-sum-price">0 ₴</div></div>'
+    +'<div class="sum-card"><div class="sum-label">Маржа</div><div class="sum-val" id="cm-sum-margin">0 ₴</div></div>'
+    +'<div class="sum-card"><div class="sum-label">Маржа %</div><div class="sum-val" id="cm-sum-pct">0%</div></div>'
+    +'</div>'
+    +'<div id="cm-status"></div>';
+
+  const footer=document.getElementById("cm-footer");
+  let delBtn=CM.existing?'<button class="btn btn-danger" onclick="cmDelete()">🗑 Видалити</button>':'';
+  footer.innerHTML=delBtn
+    +'<button class="btn" onclick="closeCalcModal()">Закрити</button>'
+    +'<button class="btn btn-primary" onclick="cmSave()">'+(CM.existing?"Зберегти зміни":"Зберегти розрахунок")+'</button>';
+
+  cmRecalc();
+}
+
+function matRowHtml(r,i){
+  const opts='<option value="">— матеріал —</option>'+MATERIALS.map(m=>'<option value="'+m.name.replace(/"/g,'&quot;')+'" '+(m.name===r.name?'selected':'')+'>'+m.name+' ('+fmt(unitPriceUah(m))+'/'+m.unit+')</option>').join("");
+  const mat=MATERIALS.find(m=>m.name===r.name);
+  const unit=mat?mat.unit:"";
+  const cost=mat&&r.qty?unitPriceUah(mat)*parseFloat(r.qty):0;
+  return '<div class="mat-row">'
+    +'<select onchange="CM.matRows['+i+'].name=this.value;renderCalcMatList();cmRecalc()">'+opts+'</select>'
+    +'<input type="number" placeholder="к-сть" value="'+r.qty+'" oninput="CM.matRows['+i+'].qty=this.value;cmRecalc()">'
+    +'<div class="mat-cost" style="text-align:left;color:var(--muted)">'+unit+'</div>'
+    +'<div class="mat-cost">'+(cost?fmt(cost):"—")+'</div>'
+    +'<button class="mat-remove" onclick="cmRemoveMat('+i+')">×</button>'
+    +'</div>';
+}
+
+function renderCalcMatList(){
+  const el=document.getElementById("cm-mat-list");
+  el.innerHTML=CM.matRows.map((r,i)=>matRowHtml(r,i)).join("");
+}
+
+function cmAddMat(){CM.matRows.push({name:"",qty:""});renderCalcMatList();cmRecalc();}
+function cmRemoveMat(i){CM.matRows.splice(i,1);if(!CM.matRows.length)CM.matRows.push({name:"",qty:""});renderCalcMatList();cmRecalc();}
+
+function cmMaterialsCost(){
+  let sum=0;
+  CM.matRows.forEach(r=>{const mat=MATERIALS.find(m=>m.name===r.name);if(mat&&r.qty)sum+=unitPriceUah(mat)*parseFloat(r.qty);});
   return sum;
 }
 
-function recalc() {
-  const price = parseFloat(document.getElementById("service-price").value) || 0;
-  const matCost = materialsCost();
-  const normHours = parseFloat(document.getElementById("norm-hours").value) || 0;
-  const hourRate = parseFloat(document.getElementById("hour-rate").value) || 0;
-  const overhead = parseFloat(document.getElementById("overhead").value) || 0;
-  const timeCost = normHours * hourRate;
-  const totalCost = matCost + timeCost + overhead;
-  const margin = price - totalCost;
-  const marginPct = price ? (margin / price * 100) : 0;
-
-  document.getElementById("sum-mat").textContent = fmt(matCost);
-  document.getElementById("sum-time").textContent = fmt(timeCost);
-  document.getElementById("sum-total").textContent = fmt(totalCost);
-  document.getElementById("sum-price").textContent = fmt(price);
-  const marginEl = document.getElementById("sum-margin");
-  const pctEl = document.getElementById("sum-margin-pct");
-  marginEl.textContent = fmt(margin);
-  pctEl.textContent = fmtPct(marginPct);
-  marginEl.className = "sum-val " + (margin >= 0 ? "good" : "bad");
-  pctEl.className = "sum-val " + (margin >= 0 ? "good" : "bad");
-  return {price, matCost, normHours, hourRate, timeCost, overhead, totalCost, margin, marginPct};
+function cmRecalc(){
+  CM.price=parseFloat(document.getElementById("cm-price").value)||0;
+  CM.normHours=parseFloat(document.getElementById("cm-norm").value)||0;
+  CM.hourRate=parseFloat(document.getElementById("cm-hourrate").value)||0;
+  CM.overhead=parseFloat(document.getElementById("cm-overhead").value)||0;
+  const matCost=cmMaterialsCost();
+  const timeCost=CM.normHours*CM.hourRate;
+  const totalCost=matCost+timeCost+CM.overhead;
+  const margin=CM.price-totalCost;
+  const marginPct=CM.price?(margin/CM.price*100):0;
+  document.getElementById("cm-sum-mat").textContent=fmt(matCost);
+  document.getElementById("cm-sum-time").textContent=fmt(timeCost);
+  document.getElementById("cm-sum-total").textContent=fmt(totalCost);
+  document.getElementById("cm-sum-price").textContent=fmt(CM.price);
+  const mEl=document.getElementById("cm-sum-margin"),pEl=document.getElementById("cm-sum-pct");
+  mEl.textContent=fmt(margin);pEl.textContent=fmtPct(marginPct);
+  mEl.className="sum-val "+(margin>=0?"good":"bad");
+  pEl.className="sum-val "+(margin>=0?"good":"bad");
+  return{matCost,timeCost,totalCost,margin,marginPct};
 }
 
-async function saveEconomics() {
-  const service = currentServiceName();
-  const statusEl = document.getElementById("calc-status");
-  if (!service) {
-    statusEl.innerHTML = '<div class="status-msg err">Вкажи назву послуги</div>';
-    return;
-  }
-  if (!TODAY_RATE) {
-    statusEl.innerHTML = '<div class="status-msg err">Впиши сьогоднішній курс ₴/$ угорі</div>';
-    return;
-  }
-  const vals = recalc();
-  const materials = matRows.filter(r => r.name && r.qty).map(r => ({name: r.name, qty: parseFloat(r.qty)}));
-
-  statusEl.innerHTML = '<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Збереження...</div>';
-  try {
-    const res = await fetch(API_BASE + "/economics", {
-      method: "POST",
-      mode: "cors",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        service,
-        price: vals.price,
-        materials,
-        materialsCost: Math.round(vals.matCost * 100) / 100,
-        normHours: vals.normHours,
-        hourRate: vals.hourRate,
-        timeCost: Math.round(vals.timeCost * 100) / 100,
-        overhead: vals.overhead,
-        totalCost: Math.round(vals.totalCost * 100) / 100,
-        margin: Math.round(vals.margin * 100) / 100,
-        marginPct: Math.round(vals.marginPct * 10) / 10,
-        usdRate: TODAY_RATE
-      })
-    });
-    const result = await res.json();
-    if (result.status === "ok") {
-      statusEl.innerHTML = '<div class="status-msg ok">✅ Збережено</div>';
-      await loadEconomics();
-      renderEconomicsTable();
-    } else {
-      statusEl.innerHTML = '<div class="status-msg err">Помилка: ' + result.message + '</div>';
+async function cmSave(){
+  const statusEl=document.getElementById("cm-status");
+  if(!TODAY_RATE){statusEl.innerHTML='<div class="status-msg err">Впиши поточний курс ₴/$ угорі сторінки</div>';return;}
+  const v=cmRecalc();
+  const materials=CM.matRows.filter(r=>r.name&&r.qty).map(r=>({name:r.name,qty:parseFloat(r.qty)}));
+  const payload={
+    service:CM.service,price:CM.price,materials,
+    materialsCost:Math.round(v.matCost*100)/100,
+    normHours:CM.normHours,hourRate:CM.hourRate,
+    timeCost:Math.round(v.timeCost*100)/100,overhead:CM.overhead,
+    totalCost:Math.round(v.totalCost*100)/100,
+    margin:Math.round(v.margin*100)/100,
+    marginPct:Math.round(v.marginPct*10)/10,
+    usdRate:TODAY_RATE
+  };
+  statusEl.innerHTML='<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Збереження...</div>';
+  try{
+    let url,body;
+    if(CM.existing){
+      url=API_BASE+"/economics/update";
+      body=Object.assign({matchService:CM.existing.service,matchUpdated:CM.existing.updated},payload);
+    }else{
+      url=API_BASE+"/economics";
+      body=payload;
     }
-  } catch(e) {
-    statusEl.innerHTML = '<div class="status-msg err">Помилка збереження: ' + e.message + '</div>';
+    const res=await fetch(url,{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const result=await res.json();
+    if(result.status==="ok"){
+      statusEl.innerHTML='<div class="status-msg ok">✅ Збережено</div>';
+      await loadEconomics();
+      renderServiceCatalog();
+      setTimeout(closeCalcModal,700);
+    }else{
+      statusEl.innerHTML='<div class="status-msg err">Помилка: '+result.message+'</div>';
+    }
+  }catch(e){
+    statusEl.innerHTML='<div class="status-msg err">Помилка збереження: '+e.message+'</div>';
   }
 }
 
-function renderEconomicsTable() {
-  const body = document.getElementById("econ-table-body");
-  const empty = document.getElementById("econ-empty");
-  if (!ECONOMICS.length) {
-    body.innerHTML = "";
-    empty.style.display = "block";
-    return;
+async function cmDelete(){
+  if(!CM.existing)return;
+  if(!confirm('Видалити розрахунок "'+CM.service+'"?'))return;
+  const statusEl=document.getElementById("cm-status");
+  statusEl.innerHTML='<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Видалення...</div>';
+  try{
+    const res=await fetch(API_BASE+"/economics/delete",{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({service:CM.existing.service,updated:CM.existing.updated})});
+    const result=await res.json();
+    if(result.status==="ok"){
+      await loadEconomics();
+      renderServiceCatalog();
+      closeCalcModal();
+    }else{
+      statusEl.innerHTML='<div class="status-msg err">Помилка: '+result.message+'</div>';
+    }
+  }catch(e){
+    statusEl.innerHTML='<div class="status-msg err">Помилка видалення: '+e.message+'</div>';
   }
-  empty.style.display = "none";
-  body.innerHTML = ECONOMICS.map((e, i) => `
-    <tr>
-      <td class="clickable" onclick="loadEconomicsRow(${i})">${e.service}</td>
-      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmt(e.price)}</td>
-      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmt(e.totalCost)}</td>
-      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmt(e.margin)}</td>
-      <td class="num clickable" onclick="loadEconomicsRow(${i})">${fmtPct(e.marginPct)}</td>
-      <td class="num clickable" onclick="loadEconomicsRow(${i})">${rateDeltaHtml(e.usdRate)}</td>
-      <td class="muted clickable" onclick="loadEconomicsRow(${i})">${e.updated}</td>
-      <td style="white-space:nowrap"><button class="row-del-btn" onclick="recalcSavedRow(${i})" title="Перерахувати за поточним курсом" style="color:var(--umbra);margin-right:4px">🔄</button><button class="row-del-btn" onclick="deleteEconomics(${i})">🗑</button></td>
-    </tr>
-  `).join("");
-}
-
-function rateDeltaHtml(thenRate) {
-  if (!thenRate || !TODAY_RATE) return "<span class='muted'>—</span>";
-  const diffPct = (TODAY_RATE - thenRate) / thenRate * 100;
-  const sign = diffPct > 0 ? "+" : "";
-  let color = "var(--muted)";
-  if (Math.abs(diffPct) >= 10) color = "var(--bad)";
-  else if (Math.abs(diffPct) >= 3) color = "#b8860b";
-  return `${thenRate.toLocaleString("uk-UA")} → ${TODAY_RATE.toLocaleString("uk-UA")} <span style="color:${color};font-weight:500">(${sign}${(Math.round(diffPct*10)/10).toLocaleString("uk-UA")}%)</span>`;
-}
-
-function loadEconomicsRow(i) {
-  const e = ECONOMICS[i];
-  const sel = document.getElementById("service-select");
-  const idx = SERVICES.findIndex(s => s.name === e.service);
-  if (idx >= 0) {
-    sel.value = String(idx);
-    document.getElementById("manual-name-row").style.display = "none";
-  } else {
-    sel.value = "manual";
-    document.getElementById("manual-name-row").style.display = "flex";
-    document.getElementById("manual-name").value = e.service;
-  }
-  document.getElementById("service-price").value = e.price;
-  document.getElementById("norm-hours").value = e.normHours || "";
-  document.getElementById("hour-rate").value = e.hourRate || "";
-  document.getElementById("overhead").value = e.overhead || "";
-  matRows = e.materials.length ? e.materials.map(m => ({name: m.name, qty: m.qty})) : [{name:"",qty:""}];
-  renderMatRows();
-  recalc();
-  document.getElementById("calc-status").innerHTML = "";
-  window.scrollTo({top:0, behavior:"smooth"});
 }
 
 // ─── МАТЕРІАЛИ ─────────────────────────────────────────
-function renderMaterialsTable() {
-  const body = document.getElementById("mat-table-body");
-  const empty = document.getElementById("mat-empty");
-  if (!MATERIALS.length) {
-    body.innerHTML = "";
-    empty.style.display = "block";
-    return;
-  }
-  empty.style.display = "none";
-  body.innerHTML = MATERIALS.map((m, i) => `
+function renderMaterialsTable(){
+  const body=document.getElementById("mat-table-body");
+  const empty=document.getElementById("mat-empty");
+  if(!MATERIALS.length){body.innerHTML="";empty.style.display="block";return;}
+  empty.style.display="none";
+  body.innerHTML=MATERIALS.map((m,i)=>`
     <tr>
       <td class="clickable" onclick="editMaterial(${i})">${m.name}</td>
       <td class="clickable" onclick="editMaterial(${i})">${m.packSize} ${m.unit}</td>
       <td class="num">${fmtUsd(m.packPriceUsd)}</td>
       <td class="num">${fmtUsd(m.unitPriceUsd)}/${m.unit}</td>
-      <td class="num">${TODAY_RATE ? fmt(unitPriceUah(m)) : "<span class='muted'>впиши курс</span>"}</td>
-      <td class="muted">${m.supplier || "—"}</td>
+      <td class="num">${TODAY_RATE?fmt(unitPriceUah(m)):"<span class='muted'>впиши курс</span>"}</td>
+      <td class="muted">${m.supplier||"—"}</td>
       <td><button class="row-del-btn" onclick="deleteMaterial('${m.name.replace(/'/g,"\\'")}')">🗑</button></td>
     </tr>
   `).join("");
 }
 
-function editMaterial(i) {
-  const m = MATERIALS[i];
-  editingMaterial = m.name;
-  document.getElementById("mat-name").value = m.name;
-  document.getElementById("mat-pack-size").value = m.packSize;
-  document.getElementById("mat-unit").value = m.unit;
-  document.getElementById("mat-pack-price").value = m.packPriceUah;
-  document.getElementById("mat-buy-rate").value = m.buyRate;
-  document.getElementById("mat-supplier").value = m.supplier;
-  document.getElementById("mat-save-btn").textContent = "Зберегти зміни";
-  document.getElementById("mat-cancel-btn").style.display = "inline-block";
-  window.scrollTo({top:0, behavior:"smooth"});
+function editMaterial(i){
+  const m=MATERIALS[i];
+  document.getElementById("mat-name").value=m.name;
+  document.getElementById("mat-pack-size").value=m.packSize;
+  document.getElementById("mat-unit").value=m.unit;
+  document.getElementById("mat-pack-price").value=m.packPriceUah;
+  document.getElementById("mat-buy-rate").value=m.buyRate;
+  document.getElementById("mat-supplier").value=m.supplier;
+  document.getElementById("mat-save-btn").textContent="Зберегти зміни";
+  document.getElementById("mat-cancel-btn").style.display="inline-block";
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-function resetMatForm() {
-  editingMaterial = null;
-  document.getElementById("mat-name").value = "";
-  document.getElementById("mat-pack-size").value = "";
-  document.getElementById("mat-pack-price").value = "";
-  document.getElementById("mat-buy-rate").value = "";
-  document.getElementById("mat-supplier").value = "";
-  document.getElementById("mat-save-btn").textContent = "Додати матеріал";
-  document.getElementById("mat-cancel-btn").style.display = "none";
-  document.getElementById("mat-status").innerHTML = "";
+function resetMatForm(){
+  document.getElementById("mat-name").value="";
+  document.getElementById("mat-pack-size").value="";
+  document.getElementById("mat-pack-price").value="";
+  document.getElementById("mat-buy-rate").value="";
+  document.getElementById("mat-supplier").value="";
+  document.getElementById("mat-save-btn").textContent="Додати матеріал";
+  document.getElementById("mat-cancel-btn").style.display="none";
+  document.getElementById("mat-status").innerHTML="";
 }
 
-async function saveMaterial() {
-  const name = document.getElementById("mat-name").value.trim();
-  const packSize = parseFloat(document.getElementById("mat-pack-size").value);
-  const unit = document.getElementById("mat-unit").value;
-  const packPriceUah = parseFloat(document.getElementById("mat-pack-price").value);
-  const buyRate = parseFloat(document.getElementById("mat-buy-rate").value);
-  const supplier = document.getElementById("mat-supplier").value.trim();
-  const statusEl = document.getElementById("mat-status");
-
-  if (!name || !packSize || !packPriceUah || !buyRate) {
-    statusEl.innerHTML = '<div class="status-msg err">Заповни назву, розмір упаковки, ціну ₴ і курс покупки</div>';
-    return;
-  }
-
-  statusEl.innerHTML = '<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Збереження...</div>';
-  try {
-    const res = await fetch(API_BASE + "/material", {
-      method: "POST",
-      mode: "cors",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({name, packSize, unit, packPriceUah, buyRate, supplier})
-    });
-    const result = await res.json();
-    if (result.status === "ok") {
-      statusEl.innerHTML = '<div class="status-msg ok">✅ Збережено</div>';
+async function saveMaterial(){
+  const name=document.getElementById("mat-name").value.trim();
+  const packSize=parseFloat(document.getElementById("mat-pack-size").value);
+  const unit=document.getElementById("mat-unit").value;
+  const packPriceUah=parseFloat(document.getElementById("mat-pack-price").value);
+  const buyRate=parseFloat(document.getElementById("mat-buy-rate").value);
+  const supplier=document.getElementById("mat-supplier").value.trim();
+  const statusEl=document.getElementById("mat-status");
+  if(!name||!packSize||!packPriceUah||!buyRate){statusEl.innerHTML='<div class="status-msg err">Заповни назву, розмір упаковки, ціну ₴ і курс покупки</div>';return;}
+  statusEl.innerHTML='<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Збереження...</div>';
+  try{
+    const res=await fetch(API_BASE+"/material",{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,packSize,unit,packPriceUah,buyRate,supplier})});
+    const result=await res.json();
+    if(result.status==="ok"){
+      statusEl.innerHTML='<div class="status-msg ok">✅ Збережено</div>';
       resetMatForm();
       await loadMaterials();
       renderMaterialsTable();
-      renderMatRows();
-    } else {
-      statusEl.innerHTML = '<div class="status-msg err">Помилка: ' + result.message + '</div>';
+    }else{
+      statusEl.innerHTML='<div class="status-msg err">Помилка: '+result.message+'</div>';
     }
-  } catch(e) {
-    statusEl.innerHTML = '<div class="status-msg err">Помилка збереження: ' + e.message + '</div>';
+  }catch(e){
+    statusEl.innerHTML='<div class="status-msg err">Помилка збереження: '+e.message+'</div>';
   }
 }
 
-async function deleteMaterial(name) {
-  if (!confirm('Видалити матеріал "' + name + '"?')) return;
-  const statusEl = document.getElementById("mat-status");
-  statusEl.innerHTML = '<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Видалення...</div>';
-  try {
-    const res = await fetch(API_BASE + "/material/delete", {
-      method: "POST",
-      mode: "cors",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({name})
-    });
-    const result = await res.json();
-    if (result.status === "ok") {
-      statusEl.innerHTML = '<div class="status-msg ok">✅ Видалено</div>';
+async function deleteMaterial(name){
+  if(!confirm('Видалити матеріал "'+name+'"?'))return;
+  const statusEl=document.getElementById("mat-status");
+  statusEl.innerHTML='<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Видалення...</div>';
+  try{
+    const res=await fetch(API_BASE+"/material/delete",{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})});
+    const result=await res.json();
+    if(result.status==="ok"){
+      statusEl.innerHTML='<div class="status-msg ok">✅ Видалено</div>';
       await loadMaterials();
       renderMaterialsTable();
-      renderMatRows();
-    } else {
-      statusEl.innerHTML = '<div class="status-msg err">Помилка: ' + result.message + '</div>';
+    }else{
+      statusEl.innerHTML='<div class="status-msg err">Помилка: '+result.message+'</div>';
     }
-  } catch(e) {
-    statusEl.innerHTML = '<div class="status-msg err">Помилка видалення: ' + e.message + '</div>';
-  }
-}
-
-async function recalcSavedRow(i) {
-  const e = ECONOMICS[i];
-  const statusEl = document.getElementById("calc-status");
-  if (!TODAY_RATE) {
-    statusEl.innerHTML = '<div class="status-msg err">Спочатку впиши сьогоднішній курс ₴/$ угорі</div>';
-    window.scrollTo({top:0, behavior:"smooth"});
-    return;
-  }
-
-  // Перераховуємо собівартість матеріалів за поточним курсом
-  let matCost = 0;
-  let missing = [];
-  e.materials.forEach(function(m) {
-    const mat = MATERIALS.find(x => x.name === m.name);
-    if (mat) {
-      matCost += mat.unitPriceUsd * TODAY_RATE * m.qty;
-    } else {
-      missing.push(m.name);
-    }
-  });
-
-  if (missing.length) {
-    if (!confirm('Матеріал(и) відсутні в каталозі: ' + missing.join(", ") + '.\nЇх вартість не буде враховано. Продовжити перерахунок?')) return;
-  }
-
-  const timeCost = e.normHours * e.hourRate;
-  const totalCost = matCost + timeCost + e.overhead;
-  const margin = e.price - totalCost;
-  const marginPct = e.price ? (margin / e.price * 100) : 0;
-
-  if (!confirm('Перерахувати "' + e.service + '" за курсом ' + TODAY_RATE + '?\n\nБула собівартість: ' + fmt(e.totalCost) + '\nСтане: ' + fmt(totalCost))) return;
-
-  statusEl.innerHTML = '<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Перерахунок...</div>';
-  try {
-    const res = await fetch(API_BASE + "/economics/update", {
-      method: "POST",
-      mode: "cors",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        matchService: e.service,
-        matchUpdated: e.updated,
-        service: e.service,
-        price: e.price,
-        materials: e.materials,
-        materialsCost: Math.round(matCost * 100) / 100,
-        normHours: e.normHours,
-        hourRate: e.hourRate,
-        timeCost: Math.round(timeCost * 100) / 100,
-        overhead: e.overhead,
-        totalCost: Math.round(totalCost * 100) / 100,
-        margin: Math.round(margin * 100) / 100,
-        marginPct: Math.round(marginPct * 10) / 10,
-        usdRate: TODAY_RATE
-      })
-    });
-    const result = await res.json();
-    if (result.status === "ok") {
-      statusEl.innerHTML = '<div class="status-msg ok">✅ Перераховано за курсом ' + TODAY_RATE + '</div>';
-      await loadEconomics();
-      renderEconomicsTable();
-    } else {
-      statusEl.innerHTML = '<div class="status-msg err">Помилка: ' + result.message + '</div>';
-    }
-  } catch(err) {
-    statusEl.innerHTML = '<div class="status-msg err">Помилка перерахунку: ' + err.message + '</div>';
-  }
-}
-
-async function deleteEconomics(i) {
-  const e = ECONOMICS[i];
-  if (!confirm('Видалити розрахунок "' + e.service + '" від ' + e.updated + '?')) return;
-  const statusEl = document.getElementById("calc-status");
-  statusEl.innerHTML = '<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Видалення...</div>';
-  try {
-    const res = await fetch(API_BASE + "/economics/delete", {
-      method: "POST",
-      mode: "cors",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({service: e.service, updated: e.updated})
-    });
-    const result = await res.json();
-    if (result.status === "ok") {
-      statusEl.innerHTML = '<div class="status-msg ok">✅ Видалено</div>';
-      await loadEconomics();
-      renderEconomicsTable();
-    } else {
-      statusEl.innerHTML = '<div class="status-msg err">Помилка: ' + result.message + '</div>';
-    }
-  } catch(e) {
-    statusEl.innerHTML = '<div class="status-msg err">Помилка видалення: ' + e.message + '</div>';
+  }catch(e){
+    statusEl.innerHTML='<div class="status-msg err">Помилка видалення: '+e.message+'</div>';
   }
 }
 </script>
