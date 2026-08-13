@@ -114,6 +114,45 @@ tr.clickable:hover{background:var(--surface)}
 .nav-tab{padding:0 10px;font-size:12px}
 .svc-cards{grid-template-columns:1fr}
 }
+/* ── Процеси і час + Ставки ── */
+.svc-card.has-proc{background:#f3f8ec;border-color:#bcd89a}
+.rates-panel{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.rate-chip{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:7px 10px}
+.rate-chip .rc-dept{font-size:12px;font-weight:500}
+.rate-chip input{width:64px;padding:5px 7px;font-size:13px;border:1px solid var(--border);border-radius:7px;font-family:inherit;background:var(--card);text-align:right;font-variant-numeric:tabular-nums}
+.rate-chip input:focus{outline:none;border-color:var(--umbra)}
+.rate-chip .rc-unit{font-size:11px;color:var(--muted)}
+.modal.wide{width:640px}
+.pm-footer{justify-content:space-between}
+.proc-block{border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:11px;background:var(--bg)}
+.proc-line1{display:grid;grid-template-columns:1fr 132px 78px 30px;gap:8px;align-items:center}
+.proc-line1 input,.proc-line1 select{padding:8px 10px;font-size:13px;border:1px solid var(--border);border-radius:8px;font-family:inherit;background:var(--card);min-width:0}
+.proc-line1 input:focus,.proc-line1 select:focus{outline:none;border-color:var(--umbra)}
+.proc-dept-ro{padding:8px 10px;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--graphite);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proc-min{text-align:right;font-variant-numeric:tabular-nums}
+.proc-del{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--card);cursor:pointer;color:var(--bad);font-size:14px;line-height:1}
+.proc-del:hover{border-color:var(--bad);background:#fbe9e9}
+.proc-desc{width:100%;margin-top:8px;padding:8px 10px;font-size:13px;border:1px solid var(--border);border-radius:8px;font-family:inherit;background:var(--card);resize:vertical;min-height:38px;line-height:1.45}
+.proc-desc:focus{outline:none;border-color:var(--umbra)}
+.proc-calc{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:var(--muted)}
+.proc-calc .pc-cost{font-weight:600;color:var(--graphite);font-variant-numeric:tabular-nums}
+.proc-new-flag{font-size:10px;color:var(--umbra);margin-top:5px}
+.add-proc-btn{width:100%;padding:10px;background:var(--card);border:1px dashed var(--border);border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--umbra);margin-bottom:4px}
+.add-proc-btn:hover{border-color:var(--umbra);background:var(--surface)}
+.pm-summary{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+.pm-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+.pm-row .pm-lbl{color:var(--muted)}
+.pm-time{font-size:12px;color:var(--umbra);font-weight:600}
+.pm-breakdown{background:var(--surface);border-radius:10px;padding:10px 12px;margin-top:8px}
+.pm-bd-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:var(--muted)}
+.pm-bd-row .v{font-variant-numeric:tabular-nums;color:var(--graphite)}
+.pm-total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:11px 13px;background:#f3f8ec;border:1px solid #bcd89a;border-radius:10px}
+.pm-total .t-lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.pm-total .t-val{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+@media(max-width:680px){
+.proc-line1{grid-template-columns:1fr 30px}
+.proc-line1 select,.proc-line1 .proc-min,.proc-dept-ro{grid-column:1}
+}
 </style>
 </head>
 <body>
@@ -133,7 +172,9 @@ tr.clickable:hover{background:var(--surface)}
 <div class="topnav-name">Економіка</div>
 </div>
 <div class="nav-tab active" onclick="showPage('calc',this)">Розрахунок послуги</div>
+<div class="nav-tab" onclick="showPage('proc',this)">Процеси і час</div>
 <div class="nav-tab" onclick="showPage('materials',this)">Матеріали</div>
+<div class="nav-tab" onclick="showPage('rates',this)">Ставки</div>
 <div class="nav-right"><div class="logout-btn" onclick="logout()">Вийти</div></div>
 </nav>
 
@@ -149,6 +190,14 @@ tr.clickable:hover{background:var(--surface)}
 
 <input type="text" class="svc-search" id="svc-search" placeholder="Пошук послуги..." oninput="renderServiceCatalog()">
 <div id="service-catalog"></div>
+</div>
+
+<!-- ───────────── ПРОЦЕСИ І ЧАС ───────────── -->
+<div class="page" id="page-proc">
+<h2 class="section-title">Процеси і час</h2>
+<div class="hint">Клік по послузі — опиши процеси, час у хвилинах і ведення. Вартість роботи рахується за плановими ставками відділів (вкладка «Ставки»). 🟢 — процеси вже описані.</div>
+<input type="text" class="svc-search" id="proc-search" placeholder="Пошук послуги..." oninput="renderProcCatalog()">
+<div id="proc-catalog"></div>
 </div>
 
 <!-- ───────────── МАТЕРІАЛИ ───────────── -->
@@ -207,6 +256,44 @@ tr.clickable:hover{background:var(--surface)}
 </div>
 </div>
 
+<!-- ───────────── СТАВКИ ───────────── -->
+<div class="page" id="page-rates">
+<h2 class="section-title">Ставки по відділах <span class="muted" style="font-weight:400">— планові, ₴/год</span></h2>
+<div class="hint">Кожен процес успадковує ставку свого відділу. Це планова ставка для собівартості — вона не залежить від того, який майстер сьогодні на зміні. Зміна зберігається одразу.</div>
+<div class="card"><div class="rates-panel" id="rates-panel"></div></div>
+<div id="rates-status"></div>
+</div>
+
+<!-- ───────────── МОДАЛКА ПРОЦЕСИ І ЧАС ───────────── -->
+<div class="modal-bg" id="proc-modal-bg" onclick="closeProcModal(event)">
+<div class="modal wide" onclick="event.stopPropagation()">
+<div class="modal-header">
+<div>
+<div class="modal-title" id="pm-title"></div>
+<div class="modal-sub" id="pm-sub"></div>
+</div>
+<div class="modal-close" onclick="closeProcModal()">×</div>
+</div>
+<div class="modal-body">
+<div id="pm-list"></div>
+<button class="add-proc-btn" onclick="pmAdd()">＋ Додати процес</button>
+<div class="pm-summary">
+<div class="pm-row"><span class="pm-lbl">Загальний час</span><span class="pm-time" id="pm-time">—</span></div>
+<div class="pm-breakdown" id="pm-breakdown"></div>
+<div class="pm-total"><span class="t-lbl">Вартість роботи</span><span class="t-val" id="pm-cost">—</span></div>
+</div>
+<div id="pm-status"></div>
+</div>
+<div class="modal-footer pm-footer">
+<button class="btn btn-sm btn-danger" onclick="pmClear()">Видалити всі</button>
+<div style="display:flex;gap:8px">
+<button class="btn" onclick="closeProcModal()">Скасувати</button>
+<button class="btn btn-primary" onclick="pmSave()">Зберегти процеси</button>
+</div>
+</div>
+</div>
+</div>
+
 <!-- ───────────── МОДАЛКА РОЗРАХУНКУ ───────────── -->
 <div class="modal-bg" id="calc-modal-bg" onclick="closeCalcModal(event)">
 <div class="modal" onclick="event.stopPropagation()">
@@ -240,7 +327,7 @@ function svcHint(name){var lc=name.toLowerCase();for(var k in SVC_HINTS){if(lc.i
 // ─── AUTH ──────────────────────────────────────────────
 async function hashStr(s){const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");}
 async function doLogin(){const h=await hashStr(document.getElementById("pwd-input").value);if(h===PWD_HASH){document.getElementById("login-wrap").style.display="none";document.getElementById("app").style.display="flex";sessionStorage.setItem("rw_auth","1");loadData();}else{document.getElementById("login-err").textContent="Невірний пароль";}}
-if(sessionStorage.getItem("rw_auth")==="1"){document.getElementById("login-wrap").style.display="none";document.getElementById("app").style.display="flex";loadData();}
+window.addEventListener("load",function(){if(sessionStorage.getItem("rw_auth")==="1"){document.getElementById("login-wrap").style.display="none";document.getElementById("app").style.display="flex";loadData();}});
 function logout(){sessionStorage.removeItem("rw_auth");location.reload();}
 function showPage(id,btn){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.querySelectorAll(".nav-tab").forEach(b=>b.classList.remove("active"));document.getElementById("page-"+id).classList.add("active");btn.classList.add("active");}
 
@@ -262,9 +349,11 @@ function cellNum(row,i){const v=cellStr(row,i).replace(",",".");const n=parseFlo
 
 async function loadData(){
   loadTodayRate();
-  await Promise.all([loadServices(),loadMaterials(),loadEconomics()]);
+  await Promise.all([loadServices(),loadMaterials(),loadEconomics(),loadRates(),loadProcDict(),loadSvcProcs()]);
   renderServiceCatalog();
   renderMaterialsTable();
+  renderProcCatalog();
+  renderRatesPage();
 }
 
 async function loadServices(){
@@ -616,6 +705,218 @@ async function deleteMaterial(name){
     }
   }catch(e){
     statusEl.innerHTML='<div class="status-msg err">Помилка видалення: '+e.message+'</div>';
+  }
+}
+// ═══════════════ ПРОЦЕСИ І ЧАС + СТАВКИ ═══════════════
+let RATES = {};       // {dept: rate}
+let PROC_DICT = [];   // [{n, d}]
+let SVC_PROCS = [];   // [{service, proc, min, desc, updated}]
+let PM = null;        // {service, rows:[{proc,dept,min,desc}]}
+
+async function loadRates(){
+  try{
+    const rows=await gvizFetch("Ставки");
+    RATES={};
+    rows.forEach(r=>{const d=cellStr(r,0).trim();if(d)RATES[d]=cellNum(r,1);});
+  }catch(e){console.log("Ставки",e);RATES={};}
+}
+async function loadProcDict(){
+  try{
+    const rows=await gvizFetch("Процеси_Довідник");
+    PROC_DICT=rows.map(r=>({n:cellStr(r,0).trim(),d:cellStr(r,1).trim()})).filter(p=>p.n);
+  }catch(e){console.log("Процеси_Довідник",e);PROC_DICT=[];}
+}
+async function loadSvcProcs(){
+  try{
+    const rows=await gvizFetch("Послуга_Процеси");
+    SVC_PROCS=rows.map(r=>({service:cellStr(r,0).trim(),proc:cellStr(r,1).trim(),min:cellNum(r,2),desc:cellStr(r,3),updated:cellStr(r,4)})).filter(x=>x.service&&x.proc);
+  }catch(e){console.log("Послуга_Процеси",e);SVC_PROCS=[];}
+}
+
+function deptRate(dept){return RATES[dept]||0;}
+function dictDept(procName){const f=PROC_DICT.find(p=>p.n===procName);return f?f.d:"";}
+function isKnownProc(procName){return PROC_DICT.some(p=>p.n===procName);}
+function procsForService(name){return SVC_PROCS.filter(x=>x.service===name);}
+function hm(min){var h=Math.round(min/60*100)/100;return min+" хв ("+h+" год)";}
+
+// ─── КАТАЛОГ ПОСЛУГ (процеси) ───────────────────────────
+function renderProcCatalog(){
+  const cont=document.getElementById("proc-catalog");
+  const q=(document.getElementById("proc-search").value||"").trim().toLowerCase();
+  const groups={};
+  SERVICES.forEach(s=>{
+    if(q && s.name.toLowerCase().indexOf(q)===-1)return;
+    const dept=s.dept||"Інше";
+    if(!groups[dept])groups[dept]=[];
+    groups[dept].push(s);
+  });
+  const keys=Object.keys(groups);
+  if(!keys.length){cont.innerHTML='<div class="empty">Нічого не знайдено</div>';return;}
+  let html="";
+  keys.forEach(dept=>{
+    html+='<div class="dept-group"><div class="dept-title">'+dept+'</div><div class="svc-cards">';
+    groups[dept].forEach(s=>{
+      const pr=procsForService(s.name);
+      const has=pr.length>0;
+      let totMin=0,totCost=0;
+      pr.forEach(p=>{const d=dictDept(p.proc);totMin+=p.min;totCost+=p.min/60*deptRate(d);});
+      const hint=svcHint(s.name);
+      let cls="svc-card"+(has?" has-proc":"");
+      let check=has?'<span class="svc-card-check">🟢</span>':'';
+      let econHtml=has?'<div class="svc-card-econ"><span class="lbl">'+pr.length+' проц. · '+totMin+' хв</span><span class="val good">'+fmt(totCost)+'</span></div>':'';
+      html+='<div class="'+cls+'" onclick="openProcModal(\''+encodeURIComponent(s.name)+'\')">'
+        +check
+        +'<div class="svc-card-name">'+s.name+'</div>'
+        +(hint?'<div class="svc-card-hint">'+hint+'</div>':'')
+        +econHtml
+        +'</div>';
+    });
+    html+='</div></div>';
+  });
+  cont.innerHTML=html;
+}
+
+// ─── МОДАЛКА ПРОЦЕСІВ ───────────────────────────────────
+function openProcModal(encName){
+  const name=decodeURIComponent(encName);
+  const svc=SERVICES.find(s=>s.name===name);
+  if(!svc)return;
+  const existing=procsForService(name);
+  PM={
+    service:name,
+    rows: existing.length
+      ? existing.map(p=>({proc:p.proc,dept:dictDept(p.proc)||"",min:p.min,desc:p.desc}))
+      : []
+  };
+  document.getElementById("pm-title").textContent=name;
+  document.getElementById("pm-sub").textContent=(svc.dept||"")+(svc.category?" · "+svc.category:"");
+  renderProcModal();
+  document.getElementById("proc-modal-bg").classList.add("open");
+}
+function closeProcModal(e){
+  if(e && e.target!==document.getElementById("proc-modal-bg"))return;
+  document.getElementById("proc-modal-bg").classList.remove("open");
+  PM=null;
+}
+
+function pmDeptSelect(i,sel){
+  var keys=Object.keys(RATES);
+  var h='<select onchange="pmSetDept('+i+',this.value)">';
+  if(sel && keys.indexOf(sel)===-1)h+='<option value="'+sel+'" selected>'+sel+'</option>';
+  keys.forEach(function(k){h+='<option value="'+k+'"'+(k===sel?' selected':'')+'>'+k+'</option>';});
+  h+='</select>';
+  return h;
+}
+function renderProcModal(){
+  var dl='<datalist id="pm-dict">';
+  PROC_DICT.forEach(function(p){dl+='<option value="'+p.n.replace(/"/g,'&quot;')+'">';});
+  dl+='</datalist>';
+  var h="";
+  PM.rows.forEach(function(p,i){
+    var known=isKnownProc(p.proc);
+    var dept=known?dictDept(p.proc):p.dept;
+    var rate=deptRate(dept);
+    var cost=p.min/60*rate;
+    var deptCell=known?'<div class="proc-dept-ro">'+(dept||"—")+'</div>':pmDeptSelect(i,p.dept);
+    h+='<div class="proc-block">'
+      +'<div class="proc-line1">'
+      +'<input list="pm-dict" placeholder="Назва процесу" value="'+p.proc.replace(/"/g,'&quot;')+'" onchange="pmSetName('+i+',this.value)">'
+      +deptCell
+      +'<input class="proc-min" type="number" value="'+p.min+'" onchange="pmSetMin('+i+',this.value)">'
+      +'<button class="proc-del" onclick="pmDel('+i+')">×</button>'
+      +'</div>'
+      +(known||!p.proc?"":'<div class="proc-new-flag">＋ новий процес — буде додано в довідник</div>')
+      +'<textarea class="proc-desc" placeholder="Опис процесу (ведення) — як саме виконується" onchange="pmSetDesc('+i+',this.value)">'+(p.desc||"")+'</textarea>'
+      +'<div class="proc-calc"><span>'+p.min+' хв · '+(dept||"—")+' '+rate+' ₴/год</span><span class="pc-cost">'+fmt(cost)+'</span></div>'
+      +'</div>';
+  });
+  document.getElementById("pm-list").innerHTML=dl+h;
+  pmRecalc();
+}
+function pmSetName(i,v){PM.rows[i].proc=v.trim();var d=dictDept(v.trim());if(d)PM.rows[i].dept=d;renderProcModal();}
+function pmSetDept(i,v){PM.rows[i].dept=v;renderProcModal();}
+function pmSetMin(i,v){PM.rows[i].min=parseInt(v)||0;renderProcModal();}
+function pmSetDesc(i,v){PM.rows[i].desc=v;}
+function pmDel(i){PM.rows.splice(i,1);renderProcModal();}
+function pmAdd(){var firstDept=Object.keys(RATES)[0]||"";PM.rows.push({proc:"",dept:firstDept,min:0,desc:""});renderProcModal();}
+function pmClear(){if(!confirm("Видалити всі процеси цієї послуги?"))return;PM.rows=[];renderProcModal();}
+
+function pmRecalc(){
+  var totMin=0,totCost=0,byDept={};
+  PM.rows.forEach(function(p){
+    var known=isKnownProc(p.proc);
+    var dept=known?dictDept(p.proc):p.dept;
+    var rate=deptRate(dept);
+    var c=p.min/60*rate;
+    totMin+=p.min;totCost+=c;
+    if(dept){if(!byDept[dept])byDept[dept]={min:0,cost:0};byDept[dept].min+=p.min;byDept[dept].cost+=c;}
+  });
+  document.getElementById("pm-time").textContent=totMin>0?hm(totMin):"—";
+  document.getElementById("pm-cost").textContent=fmt(totCost);
+  var bd="";
+  for(var d in byDept){bd+='<div class="pm-bd-row"><span>'+d+' · '+byDept[d].min+' хв × '+deptRate(d)+' ₴/год</span><span class="v">'+fmt(byDept[d].cost)+'</span></div>';}
+  document.getElementById("pm-breakdown").innerHTML=bd||'<div class="pm-bd-row"><span class="muted">Ще немає процесів</span></div>';
+}
+
+async function pmSave(){
+  var statusEl=document.getElementById("pm-status");
+  var procs=[];
+  for(var i=0;i<PM.rows.length;i++){
+    var p=PM.rows[i];
+    var name=(p.proc||"").trim();
+    if(!name)continue;
+    var known=isKnownProc(name);
+    var dept=known?dictDept(name):(p.dept||"").trim();
+    if(!dept){statusEl.innerHTML='<div class="status-msg err">Обери відділ для процесу «'+name+'»</div>';return;}
+    procs.push({proc:name,dept:dept,min:parseInt(p.min)||0,desc:p.desc||""});
+  }
+  statusEl.innerHTML='<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Збереження...</div>';
+  try{
+    var res=await fetch(API_BASE+"/processes",{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({service:PM.service,procs:procs})});
+    var result=await res.json();
+    if(result.status==="ok"){
+      statusEl.innerHTML='<div class="status-msg ok">✅ Збережено</div>';
+      await Promise.all([loadProcDict(),loadSvcProcs()]);
+      renderProcCatalog();
+      setTimeout(closeProcModal,700);
+    }else{
+      statusEl.innerHTML='<div class="status-msg err">Помилка: '+result.message+'</div>';
+    }
+  }catch(e){
+    statusEl.innerHTML='<div class="status-msg err">Помилка збереження: '+e.message+'</div>';
+  }
+}
+
+// ─── СТАВКИ ─────────────────────────────────────────────
+function renderRatesPage(){
+  var cont=document.getElementById("rates-panel");
+  var keys=Object.keys(RATES);
+  if(!keys.length){cont.innerHTML='<div class="empty">Немає відділів у листі «Ставки»</div>';return;}
+  var h="";
+  keys.forEach(function(d){
+    h+='<div class="rate-chip"><span class="rc-dept">'+d+'</span>'
+      +'<input type="number" value="'+RATES[d]+'" onchange="saveRate(\''+d.replace(/'/g,"\\'")+'\',this.value)">'
+      +'<span class="rc-unit">₴/год</span></div>';
+  });
+  cont.innerHTML=h;
+}
+async function saveRate(dept,val){
+  var rate=parseFloat(val)||0;
+  var statusEl=document.getElementById("rates-status");
+  statusEl.innerHTML='<div class="status-msg" style="background:var(--surface);color:var(--muted)">⏳ Збереження...</div>';
+  try{
+    var res=await fetch(API_BASE+"/rate",{method:"POST",mode:"cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({dept:dept,rate:rate})});
+    var result=await res.json();
+    if(result.status==="ok"){
+      RATES[dept]=rate;
+      statusEl.innerHTML='<div class="status-msg ok">✅ Збережено</div>';
+      renderProcCatalog();
+      setTimeout(function(){statusEl.innerHTML="";},1200);
+    }else{
+      statusEl.innerHTML='<div class="status-msg err">Помилка: '+result.message+'</div>';
+    }
+  }catch(e){
+    statusEl.innerHTML='<div class="status-msg err">Помилка: '+e.message+'</div>';
   }
 }
 </script>
